@@ -45,8 +45,7 @@ body{
 
 .header{
     display:flex;
-    justify-content:center; /* شيلنا الزرار من هنا */
-    align-items:center;
+    justify-content:center;
     margin-bottom:15px;
 }
 
@@ -72,10 +71,16 @@ input{
     font-size:16px;
 }
 
-.buttons{
+.rate-row{
     display:flex;
     gap:10px;
-    margin-top:12px;
+    margin-top:6px;
+}
+
+.buttons{
+    display:flex;
+    gap:8px;
+    flex:1;
 }
 
 .buttons button{
@@ -84,7 +89,7 @@ input{
     border:none;
     border-radius:12px;
     cursor:pointer;
-    font-size:15px;
+    font-size:14px;
     background:var(--border);
     color:var(--text);
     transition:.2s;
@@ -93,6 +98,17 @@ input{
 .buttons button.active{
     background:var(--main);
     color:#fff;
+}
+
+#customRate{
+    width:70px;
+    padding:10px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    background:transparent;
+    color:var(--text);
+    font-size:14px;
+    text-align:center;
 }
 
 .result{
@@ -143,10 +159,19 @@ input{
     <input type="number" id="amount" placeholder="اكتب المبلغ">
 
     <label>اختار الخصم</label>
-    <div class="buttons">
-        <button onclick="setRate(5,this)">5 ‰</button>
-        <button onclick="setRate(6,this)">6 ‰</button>
-        <button onclick="setRate(8,this)">8 ‰</button>
+    <div class="rate-row">
+        <div class="buttons">
+            <button onclick="setRate(5,this)">5 ‰</button>
+            <button onclick="setRate(6,this)">6 ‰</button>
+            <button onclick="setRate(8,this)">8 ‰</button>
+        </div>
+
+        <input 
+            type="number" 
+            id="customRate" 
+            placeholder="‰"
+            oninput="setCustomRate(this.value)"
+        >
     </div>
 
     <div class="result">
@@ -158,21 +183,20 @@ input{
 </div>
 
 <script>
-// ==================== Dark Mode من Tools Hub ====================
+// ==================== Dark Mode ====================
 window.addEventListener("message", (event) => {
-    if(event.data.dark !== undefined){  // {dark:true/false}
+    if(event.data.dark !== undefined){
         document.body.classList.toggle("dark", event.data.dark);
     }
-    if(event.data.theme){  // {theme:"dark"/"light"}
+    if(event.data.theme){
         document.body.classList.toggle("dark", event.data.theme === "dark");
     }
 });
 
-// طلب الثيم عند التحميل
 if(window.parent){
     window.parent.postMessage({requestTheme:true}, '*');
 }
-// ===============================================================
+// ==================================================
 
 let rate = 0;
 
@@ -181,11 +205,21 @@ const discountEl = document.getElementById("discount");
 const finalEl = document.getElementById("final");
 const buttons = document.querySelectorAll(".buttons button");
 const copyBtn = document.getElementById("copyBtn");
+const customRateInput = document.getElementById("customRate");
 
 function setRate(val,el){
     rate = val;
+    customRateInput.value = "";
+
     buttons.forEach(b=>b.classList.remove("active"));
     el.classList.add("active");
+
+    calculate();
+}
+
+function setCustomRate(val){
+    rate = parseFloat(val) || 0;
+    buttons.forEach(b=>b.classList.remove("active"));
     calculate();
 }
 
